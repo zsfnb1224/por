@@ -2,85 +2,96 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>倒计时页面</title>
+  <title>ZSFan</title>
   <style>
-    /* 设置页面样式 */
-    body {
+    /* 全局重置和基础样式 */
+    * {
       margin: 0;
       padding: 0;
-      background-color: #f0f0f0;
-      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+    }
+    
+    body {
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       position: relative;
     }
-    /* 用户 IP 显示盒 */
+    
+    /* 用户IP展示块 */
     #ipBox {
       position: absolute;
       top: 20px;
       left: 20px;
       background-color: #fff;
-      padding: 10px 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 12px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       font-size: 16px;
+      color: #333;
     }
-    /* 倒计时容器样式 */
+    
+    /* 倒计时容器 */
     #countdownContainer {
       position: relative;
-      width: 120px;
-      height: 120px;
+      width: 140px;
+      height: 140px;
     }
-    /* 外部圆形动画样式 */
+    
+    /* 动画效果圆形边框 */
     #countdownCircle {
-      width: 120px;
-      height: 120px;
-      border: 10px solid transparent;
-      border-top: 10px solid #3498db;
+      width: 140px;
+      height: 140px;
+      border: 8px solid transparent;
+      border-top: 8px solid #ffffff;
       border-radius: 50%;
-      box-sizing: border-box;
       position: absolute;
       top: 0;
       left: 0;
       animation: rotateCircle 3s linear forwards;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
     }
+    
     @keyframes rotateCircle {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
-    /* 倒计时数字 */
+    
+    /* 倒计时数字样式 */
     #countdownNumber {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 36px;
+      font-size: 48px;
       font-weight: bold;
-      z-index: 1;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
   </style>
 </head>
 <body>
-  <div id="ipBox">加载中... </div>
+  <div id="ipBox">加载中…</div>
   <div id="countdownContainer">
     <div id="countdownCircle"></div>
     <div id="countdownNumber">3</div>
   </div>
 
   <script>
-    // 获取用户 IP (使用 ipify 公共 API)
+    // 获取用户IP，通过ipify API
     fetch('https://api.ipify.org?format=json')
       .then(response => response.json())
       .then(data => {
         document.getElementById('ipBox').innerText = "你的 IP: " + data.ip;
       })
-      .catch(error => {
+      .catch(() => {
         document.getElementById('ipBox').innerText = "无法获取 IP";
       });
-
-    // 倒计时及跳转逻辑
+    
+    // 倒计时逻辑和跳转
     let countdown = 3;
     const countdownElement = document.getElementById('countdownNumber');
     const interval = setInterval(() => {
@@ -90,7 +101,7 @@
       } else {
         clearInterval(interval);
         countdownElement.innerText = "OK";
-        // 等待 0.5 秒后跳转
+        // 0.5秒后跳转到百度
         setTimeout(() => {
           window.location.href = "https://baidu.cn";
         }, 500);
