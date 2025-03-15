@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>倒计时页面</title>
+  <style>
+    /* 设置页面样式 */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+    }
+    /* 用户 IP 显示盒 */
+    #ipBox {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #fff;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 16px;
+    }
+    /* 倒计时容器样式 */
+    #countdownContainer {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+    /* 外部圆形动画样式 */
+    #countdownCircle {
+      width: 120px;
+      height: 120px;
+      border: 10px solid transparent;
+      border-top: 10px solid #3498db;
+      border-radius: 50%;
+      box-sizing: border-box;
+      position: absolute;
+      top: 0;
+      left: 0;
+      animation: rotateCircle 3s linear forwards;
+    }
+    @keyframes rotateCircle {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    /* 倒计时数字 */
+    #countdownNumber {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 36px;
+      font-weight: bold;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="ipBox">加载中... </div>
+  <div id="countdownContainer">
+    <div id="countdownCircle"></div>
+    <div id="countdownNumber">3</div>
+  </div>
+
+  <script>
+    // 获取用户 IP (使用 ipify 公共 API)
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('ipBox').innerText = "你的 IP: " + data.ip;
+      })
+      .catch(error => {
+        document.getElementById('ipBox').innerText = "无法获取 IP";
+      });
+
+    // 倒计时及跳转逻辑
+    let countdown = 3;
+    const countdownElement = document.getElementById('countdownNumber');
+    const interval = setInterval(() => {
+      countdown--;
+      if (countdown > 0) {
+        countdownElement.innerText = countdown;
+      } else {
+        clearInterval(interval);
+        countdownElement.innerText = "OK";
+        // 等待 0.5 秒后跳转
+        setTimeout(() => {
+          window.location.href = "https://baidu.cn";
+        }, 500);
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
