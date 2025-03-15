@@ -2,36 +2,87 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <!-- 禁止页面缩放 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>ZSFan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">  
   <style>
-    /* 全局重置和基础样式 */
+    /* CSS变量统一管理 */
+    :root {
+      --bg-start: #74ebd5;
+      --bg-end: #ACB6E5;
+      --font-family: 'Nunito', sans-serif;
+      --ip-bg: #fff;
+      --ip-color: #333;
+      --circle-color: #ffffff;
+      --circle-shadow: rgba(255, 255, 255, 0.5);
+      --circle-inset: rgba(0, 0, 0, 0.2);
+      --text-color: #fff;
+      --ok-color: #FFD700;
+    }
+    
+    /* 全局重置及基础样式 */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
     
+    /* 禁止页面滚动 */
+    html, body {
+      overflow: hidden;
+    }
+    
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+      font-family: var(--font-family);
+      padding: 20px;
+    }
+    
+    /* 容器，垂直布局，包含IP和倒计时 */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
       position: relative;
     }
     
     /* 用户IP展示块 */
     #ipBox {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background-color: #fff;
+      background-color: var(--ip-bg);
       padding: 12px 24px;
       border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       font-size: 16px;
-      color: #333;
+      color: var(--ip-color);
+      display: flex;
+      align-items: center;
+      transition: box-shadow 0.3s ease;
+    }
+    #ipBox.loading::after {
+      content: "";
+      margin-left: 8px;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--ip-color);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    #ipBox:hover {
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
     }
     
     /* 倒计时容器 */
@@ -46,15 +97,15 @@
       width: 140px;
       height: 140px;
       border: 8px solid transparent;
-      border-top: 8px solid #ffffff;
+      border-top: 8px solid var(--circle-color);
       border-radius: 50%;
       position: absolute;
       top: 0;
       left: 0;
       animation: rotateCircle 3s linear forwards;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+      box-shadow: inset 0 0 8px var(--circle-inset), 0 0 15px var(--circle-shadow);
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
     }
-    
     @keyframes rotateCircle {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -67,40 +118,78 @@
       left: 50%;
       transform: translate(-50%, -50%);
       font-size: 48px;
-      font-weight: bold;
-      color: #fff;
+      font-weight: 700;
+      color: var(--text-color);
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      transition: font-size 0.5s ease, color 0.5s ease, transform 0.5s ease;
+    }
+    /* OK 提示样式 */
+    #countdownNumber.ok {
+      font-size: 42px;
+      color: var(--ok-color);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    /* 移动设备适配 */
+    @media (max-width: 480px) {
+      #ipBox {
+        font-size: 14px;
+        padding: 10px 20px;
+      }
+      #countdownContainer {
+        width: 120px;
+        height: 120px;
+      }
+      #countdownCircle {
+        width: 120px;
+        height: 120px;
+        border-width: 6px;
+      }
+      #countdownNumber {
+        font-size: 36px;
+      }
+      #countdownNumber.ok {
+        font-size: 32px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="ipBox">加载中…</div>
-  <div id="countdownContainer">
-    <div id="countdownCircle"></div>
-    <div id="countdownNumber">3</div>
+  <div class="container">
+    <div id="ipBox" class="loading">加载中...</div>
+    <div id="countdownContainer">
+      <div id="countdownCircle"></div>
+      <div id="countdownNumber">3</div>
+    </div>
   </div>
-
+  
   <script>
-    // 获取用户IP，通过ipify API
-    fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('ipBox').innerText = "你的 IP: " + data.ip;
-      })
-      .catch(() => {
-        document.getElementById('ipBox').innerText = "无法获取 IP";
-      });
+    // 异步函数获取用户 IP
+    async function fetchIP() {
+      const ipBox = document.getElementById('ipBox');
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        ipBox.textContent = "你的 IP: " + data.ip;
+      } catch (error) {
+        ipBox.textContent = "无法获取 IP";
+      } finally {
+        ipBox.classList.remove('loading');
+      }
+    }
+    fetchIP();
     
-    // 倒计时逻辑和跳转
+    // 倒计时逻辑及跳转动画
     let countdown = 3;
     const countdownElement = document.getElementById('countdownNumber');
     const interval = setInterval(() => {
       countdown--;
       if (countdown > 0) {
-        countdownElement.innerText = countdown;
+        countdownElement.textContent = countdown;
       } else {
         clearInterval(interval);
-        countdownElement.innerText = "OK";
+        countdownElement.textContent = "OK";
+        countdownElement.classList.add('ok');
         // 0.5秒后跳转到百度
         setTimeout(() => {
           window.location.href = "https://baidu.cn";
